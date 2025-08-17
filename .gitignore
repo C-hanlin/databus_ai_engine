@@ -1,0 +1,71 @@
+# Build artifacts and compiled files
+*.o
+*.ko
+*.mod
+*.mod.c
+.*.cmd
+Module.symvers
+modules.order
+.tmp_versions/
+
+# User application binaries
+user_application/databus_client
+
+# Python virtual environment
+databus_ai_venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Log files
+*.log
+dmesg.log
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# Cache files
+.cache/
+*.cache
+
+# Development tools
+.pytest_cache/
+.coverage
+htmlcov/
+
+# System files
+Thumbs.db
+ehthumbs.db
+
+# Kernel module development
+*.order
+*.symvers
+*.markers
+
+# Generated documentation
+docs/_build/
+site/
+
+# Development scripts (keep out of repo)
+setup_dev_env.sh
+activate_env.sh
+check_dev_env.py
+quick_build.sh
+quick_test.sh
