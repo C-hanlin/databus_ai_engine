@@ -19,6 +19,8 @@
 #define DATABUS_IOCTL_START_STREAM _IO(DATABUS_IOCTL_MAGIC, 1)
 #define DATABUS_IOCTL_STOP_STREAM  _IO(DATABUS_IOCTL_MAGIC, 2)
 #define DATABUS_IOCTL_GET_BUFFER_INFO _IOR(DATABUS_IOCTL_MAGIC, 3, struct databus_buffer_info)
+#define DATABUS_IOCTL_URING_CMD _IOWR(DATABUS_IOCTL_MAGIC, 4, struct databus_uring_cmd_args)
+#define DATABUS_IOCTL_GET_URING_STATUS _IOR(DATABUS_IOCTL_MAGIC, 5, struct databus_uring_queue_status)
 
 // Constants
 #define DATABUS_DEVICE_NAME "databus_ai"
@@ -105,11 +107,46 @@ struct databus_dev {
     struct mutex dev_mutex;              // 设备互斥锁，保护设备状态
 };
 
+// io_uring队列状态结构体
+struct databus_uring_queue_status {
+    u32 pending_requests;    // 待处理请求数量
+    u32 read_requests;       // 读请求数量
+    u32 write_requests;      // 写请求数量
+    u64 total_bytes;         // 总字节数
+    bool queue_full;         // 队列是否已满
+};
+
+// io_uring 命令参数结构体
+struct databus_uring_cmd_args {
+    __u32 cmd_type;          // 命令类型
+    __u32 packet_index;      // 数据包索引
+    __u64 user_buffer;       // 用户缓冲区地址
+    __u32 buffer_size;       // 缓冲区大小
+    __u32 flags;             // 操作标志
+};
+
+// io_uring 命令类型定义
+#define DATABUS_URING_CMD_READ_PACKET    1
+#define DATABUS_URING_CMD_WRITE_PACKET   2
+#define DATABUS_URING_CMD_POLL_READY     3
+
+// 最大io_uring请求数量
+#define MAX_URING_REQUESTS               256
+
 // 函数声明
-// 内核模块的主要接口函数
 long databus_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 int databus_mmap(struct file *filp, struct vm_area_struct *vma);
 long databus_io_uring_cmd(struct file *filp, unsigned int cmd, unsigned long arg);
+
+// io_uring相关函数声明
+int databus_add_uring_req(struct databus_dev *dev, void __user *user_data, 
+                         size_t len, loff_t offset);
+void databus_process_uring_reqs(struct databus_dev *dev);
+void databus_cleanup_uring_reqs(struct databus_dev *dev);
+int databus_get_uring_queue_status(struct databus_dev *dev, 
+                                 struct databus_uring_queue_status *status);
+
+// 注意：内部静态函数在各自的.c文件中声明
 
 // 全局设备指针
 // 用于在模块内部访问设备实例

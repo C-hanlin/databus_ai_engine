@@ -11,7 +11,7 @@ KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 
 # Compiler flags
-ccflags-y := -DDEBUG
+ccflags-y := -DDEBUG -I$(src)
 
 # Default target
 all:
